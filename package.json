@@ -1,0 +1,23 @@
+{
+  "name": "article-rest-full-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dompurify": "^2.0.14",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "jest": "^26.4.2",
+    "jsdom": "^16.4.0",
+    "marked": "^1.1.1",
+    "mongoose": "^5.10.2",
+    "slugify": "^1.4.5",
+    "supertest": "^4.0.2"
+  }
+}
