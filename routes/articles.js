@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Article = require('../models/articles');
+const validateId = require('../middleware/validationId');
 
 
 // get all articles
@@ -11,8 +12,11 @@ router.get('/', async (req, res) => {
 
 
 // get article based on id
-router.get('/id/:id', async (req, res) => {
+router.get('/id/:id', validateId, async (req, res) => {
    const article = await Article.findById(req.params.id);
+
+   checkId(article, res);
+
    res.send(article);
 });
 
@@ -54,7 +58,7 @@ router.post('/', async (req, res) => {
 
 
 // edit article based on id
-router.put('/id/:id', async (req, res) => {
+router.put('/id/:id', validateId, async (req, res) => {
    const article = await Article.findByIdAndUpdate(req.params.id, {
       title: req.body.title,
       tag: req.body.tag,
@@ -62,6 +66,8 @@ router.put('/id/:id', async (req, res) => {
    }, {
       new: true
    });
+
+   checkId(article, res);
 
    article.save();
 
@@ -87,6 +93,8 @@ router.put('/slug/:slug', async (req, res) => {
       }
    );
 
+   checkId(article, res);
+
    res.send({
       message: "Article has updated....",
       status: res.statusCode
@@ -95,8 +103,10 @@ router.put('/slug/:slug', async (req, res) => {
 
 
 // delete article based on
-router.delete('/id/:id', async (req, res) => {
+router.delete('/id/:id', validateId, async (req, res) => {
    const article = await Article.findByIdAndDelete(req.params.id);
+
+   checkId(article, res);
 
    res.send({
       message: "Article has deleted....",
@@ -116,6 +126,16 @@ router.delete('/slug/:slug', async (req, res) => {
       status: res.statusCode
    });;
 });
+
+
+function checkId(data, response) {
+   if (!data) {
+      return response.status(404).send({
+         message: "The Article with the given ID was not found...",
+         status: response.statusCode
+      });
+   }
+}
 
 
 module.exports = router;
