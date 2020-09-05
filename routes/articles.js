@@ -13,9 +13,12 @@ router.get('/', async (req, res) => {
 });
 
 
-// get article reference by id
-router.get('/:id', async (req, res) => {
-   const article = await Article.findById(req.params.id);
+// get article reference by slug
+router.get('/:slug', async (req, res) => {
+   const article = await Article.find({
+      slug: req.params.slug
+   });
+
    res.send(article);
 });
 

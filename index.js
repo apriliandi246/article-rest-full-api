@@ -7,6 +7,7 @@ require('./startup/database')();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+require('./startup/cors')(app);
 require('./startup/routes')(app);
 
 
