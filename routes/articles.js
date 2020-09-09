@@ -1,5 +1,6 @@
-const express = require('express');
-const router = express.Router();
+'use strict';
+
+const router = require('express').Router();
 const Article = require('../models/articles');
 const validateId = require('../middleware/validationId');
 
@@ -25,12 +26,7 @@ router.get('/id/:id', validateId, async (req, res) => {
 router.get('/slug/:slug', async (req, res) => {
    const article = await Article.find({ slug: req.params.slug });
 
-   if (article.length === 0) {
-      return res.status(404).send({
-         message: "The Article with the given SLUG was not found...",
-         status: res.statusCode
-      });
-   }
+   checkData(article, res);
 
    res.send(article);
 });
@@ -111,7 +107,7 @@ router.delete('/id/:id', validateId, async (req, res) => {
 function checkData(data, response) {
    if (!data) {
       return response.status(404).send({
-         message: "The Article with the given ID was not found...",
+         message: "The Article not found...",
          status: response.statusCode
       });
    }
