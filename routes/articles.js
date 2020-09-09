@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
 router.get('/id/:id', validateId, async (req, res) => {
    const article = await Article.findById(req.params.id);
 
-   checkId(article, res);
+   checkData(article, res);
 
    res.send(article);
 });
@@ -24,12 +24,29 @@ router.get('/id/:id', validateId, async (req, res) => {
 // get article based on slug
 router.get('/slug/:slug', async (req, res) => {
    const article = await Article.find({ slug: req.params.slug });
+
+   if (article.length === 0) {
+      return res.status(404).send({
+         message: "The Article with the given SLUG was not found...",
+         status: res.statusCode
+      });
+   }
+
    res.send(article);
 });
 
 
-// get articles reference by tag
+// get articles based on tag
 router.get('/tag/:tag', async (req, res) => {
+   const tags = ['html', 'css', 'nodejs', 'reactjs', 'mongodb', 'markdown', 'javascript', 'expressjs'];
+
+   if (tags.includes(req.params.tag) === false) {
+      return res.status(404).send({
+         message: "The Article with the given TAG was not found...",
+         status: res.statusCode
+      });
+   }
+
    const articles = await Article.find({
       tag: req.params.tag
    }).sort({
@@ -67,68 +84,31 @@ router.put('/id/:id', validateId, async (req, res) => {
       new: true
    });
 
-   checkId(article, res);
+   checkData(article, res);
 
    article.save();
 
    res.send({
       message: "Article has updated....",
       status: res.statusCode
-   });;
+   });
 });
 
 
-// edit article based on slu
-router.put('/slug/:slug', async (req, res) => {
-   const article = await Article.updateOne(
-      {
-         "slug": req.params.slug
-      },
-      {
-         $set: {
-            title: req.body.title,
-            tag: req.body.tag,
-            markdown: req.body.markdown
-         }
-      }
-   );
-
-   checkId(article, res);
-
-   res.send({
-      message: "Article has updated....",
-      status: res.statusCode
-   });;
-});
-
-
-// delete article based on
+// delete article based on id
 router.delete('/id/:id', validateId, async (req, res) => {
    const article = await Article.findByIdAndDelete(req.params.id);
 
-   checkId(article, res);
+   checkData(article, res);
 
    res.send({
       message: "Article has deleted....",
       status: res.statusCode
-   });;
-});
-
-
-// delete article
-router.delete('/slug/:slug', async (req, res) => {
-   const article = await Article.deleteOne({
-      "slug": req.params.slug
    });
-
-   res.send({
-      message: "Article has deleted....",
-      status: res.statusCode
-   });;
 });
 
 
-function checkId(data, response) {
+function checkData(data, response) {
    if (!data) {
       return response.status(404).send({
          message: "The Article with the given ID was not found...",
