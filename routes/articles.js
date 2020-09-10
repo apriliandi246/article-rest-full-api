@@ -26,7 +26,12 @@ router.get('/id/:id', validateId, async (req, res) => {
 router.get('/slug/:slug', async (req, res) => {
    const article = await Article.find({ slug: req.params.slug });
 
-   checkData(article, res);
+   if (article.length === 0) {
+      return res.status(404).send({
+         message: "The Article not found...",
+         status: res.statusCode
+      });
+   }
 
    res.send(article);
 });
@@ -34,7 +39,7 @@ router.get('/slug/:slug', async (req, res) => {
 
 // get articles based on tag
 router.get('/tag/:tag', async (req, res) => {
-   const tags = ['html', 'css', 'nodejs', 'reactjs', 'mongodb', 'markdown', 'javascript', 'expressjs'];
+   const tags = ['html', 'css', 'nodejs', 'reactjs', 'mongodb', 'javascript', 'expressjs', 'technology'];
 
    if (tags.includes(req.params.tag) === false) {
       return res.status(404).send({
