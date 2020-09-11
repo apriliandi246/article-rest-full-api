@@ -15,9 +15,7 @@ router.get('/', async (req, res) => {
 // get article based on id
 router.get('/id/:id', validateId, async (req, res) => {
    const article = await Article.findById(req.params.id);
-
    checkData(article, res);
-
    res.send(article);
 });
 
@@ -25,14 +23,7 @@ router.get('/id/:id', validateId, async (req, res) => {
 // get article based on slug
 router.get('/slug/:slug', async (req, res) => {
    const article = await Article.find({ slug: req.params.slug });
-
-   if (article.length === 0) {
-      return res.status(404).send({
-         message: "The Article not found...",
-         status: res.statusCode
-      });
-   }
-
+   checkData(article, res);
    res.send(article);
 });
 
@@ -110,9 +101,9 @@ router.delete('/id/:id', validateId, async (req, res) => {
 
 
 function checkData(data, response) {
-   if (!data) {
+   if (!data || data.length === 0) {
       return response.status(404).send({
-         message: "The Article not found...",
+         message: "Article is not found...",
          status: response.statusCode
       });
    }
