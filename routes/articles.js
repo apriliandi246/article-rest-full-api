@@ -1,80 +1,90 @@
-'use strict';
+"use strict";
 
-const router = require('express').Router();
-const Article = require('../models/articles');
-const validateId = require('../middleware/validationId');
-
+const router = require("express").Router();
+const Article = require("../models/articles");
+const validateId = require("../middleware/validationId");
 
 // get all articles
-router.get('/', async (req, res) => {
-   const articles = await Article.find().sort({ createdAt: 'desc' });
+router.get("/", async (req, res) => {
+   const articles = await Article.find().sort({ createdAt: "desc" });
    res.send(articles);
 });
 
-
 // get article based on id
-router.get('/id/:id', validateId, async (req, res) => {
+router.get("/id/:id", validateId, async (req, res) => {
    const article = await Article.findById(req.params.id);
    checkData(article, res);
    res.send(article);
 });
 
-
 // get article based on slug
-router.get('/slug/:slug', async (req, res) => {
+router.get("/slug/:slug", async (req, res) => {
    const article = await Article.find({ slug: req.params.slug });
    checkData(article, res);
    res.send(article);
 });
 
-
 // get articles based on tag
-router.get('/tag/:tag', async (req, res) => {
-   const tags = ['html', 'css', 'nodejs', 'reactjs', 'mongodb', 'javascript', 'expressjs', 'technology'];
+router.get("/tag/:tag", async (req, res) => {
+   const tags = [
+      "html",
+      "css",
+      "nodejs",
+      "reactjs",
+      "mongodb",
+      "javascript",
+      "expressjs",
+      "technology",
+   ];
 
    if (tags.includes(req.params.tag) === false) {
       return res.status(404).send({
          message: "The Article with the given TAG was not found...",
-         status: res.statusCode
+         status: res.statusCode,
       });
    }
 
    const articles = await Article.find({
-      tag: req.params.tag
+      tag: req.params.tag,
    }).sort({
-      createdAt: 'desc'
+      createdAt: "desc",
    });
 
    res.send(articles);
 });
 
-
 // make new article
-router.post('/', async (req, res) => {
+router.post("/", async (req, res) => {
    const article = new Article({
       title: req.body.title,
       tag: req.body.tag,
-      markdown: req.body.markdown
+      markdown: req.body.markdown,
    });
 
    await article.save();
 
+   const articles = await Article.find().sort({ createdAt: "desc" });
+   req.io.sockets.emit("get_articles", articles);
+
    res.send({
       message: "Article has created....",
-      status: res.statusCode
+      status: res.statusCode,
    });
 });
 
-
 // edit article based on id
-router.put('/id/:id', validateId, async (req, res) => {
-   const article = await Article.findByIdAndUpdate(req.params.id, {
-      title: req.body.title,
-      tag: req.body.tag,
-      markdown: req.body.markdown
-   }, {
-      new: true
-   });
+router.put("/id/:id", validateId, async (req, res) => {
+   const article = await Article.findByIdAndUpdate(
+      req.params.id,
+      {
+         title: req.body.title,
+         tag: req.body.tag,
+         markdown: req.body.markdown,
+      },
+      {
+         new: true,
+      }
+   );
 
    checkData(article, res);
 
@@ -82,32 +92,29 @@ router.put('/id/:id', validateId, async (req, res) => {
 
    res.send({
       message: "Article has updated....",
-      status: res.statusCode
+      status: res.statusCode,
    });
 });
 
-
 // delete article based on id
-router.delete('/id/:id', validateId, async (req, res) => {
+router.delete("/id/:id", validateId, async (req, res) => {
    const article = await Article.findByIdAndDelete(req.params.id);
 
    checkData(article, res);
 
    res.send({
       message: "Article has deleted....",
-      status: res.statusCode
+      status: res.statusCode,
    });
 });
-
 
 function checkData(data, response) {
    if (!data || data.length === 0) {
       return response.status(404).send({
          message: "Article is not found...",
-         status: response.statusCode
+         status: response.statusCode,
       });
    }
 }
-
 
 module.exports = router;
